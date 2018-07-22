@@ -1,0 +1,10 @@
+Things to do
+
+- Download the activity database http://archive.ics.uci.edu/ml/datasets/pamap2+physical+activity+monitoring
+- Take a look at the data. Try making plots etc. 
+- Think about what features we might want to extract.
+
+Questions:
+
+- What sort of data is being recorded? Are there missing data?
+- Is the data labelled?
