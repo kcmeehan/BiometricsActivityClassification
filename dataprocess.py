@@ -160,7 +160,7 @@ def chopAllSpectra(actDict, duration=5.12, withT=True):
 # Should return 0 if segregate the data properly.
 def discontinuityCount(db):
     t=db.shape[1]
-    return np.array([(db[i][t-1][0]-db[i][0][0])>(t/100+0.1) for i in range(len(db))]).astype(int).sum()
+    return np.array([((db[i][t-1][0]-db[i][0][0])>(t/100+0.1) or (db[i][t-1][0]-db[i][0][0])<(t/100-0.1)) for i in range(len(db))]).astype(int).sum()
 
 
 ### Return a 3D narray with many small chuncks of data ###
@@ -171,11 +171,12 @@ def chopSpectrum(actDF, duration=5.12, withT=True):
     db = []
     if withT:
         for i in range(int(N/100)):
-            if (i*100+t < N) and (actDF.timestamp[i*100+t]-actDF.timestamp[i*100]<duration+0.1):
+            if (i*100+t < N) and (actDF.timestamp[i*100+t]-actDF.timestamp[i*100]<duration+0.1) and (actDF.timestamp[i*100+t]-actDF.timestamp[i*100]>duration-0.1):
                 db.append(np.array(actDF.loc[i*100:i*100+t-1, :]))
     else:
         for i in range(int(N/100)):
-            if (i*100+t < N) and (actDF.timestamp[i*100+t]-actDF.timestamp[i*100]<duration+0.1):
+            delt = actDF.timestamp[i*100+t]-actDF.timestamp[i*100]
+            if (i*100+t < N) and (delt<duration+0.1) and (delt>duration-0.1):
                 db.append(np.array(actDF.loc[i*100:i*100+t-1, 'activityID':]))
     
     return np.array(db)
