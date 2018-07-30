@@ -61,6 +61,13 @@ def feat_row(block,ulist):
         all_feat=np.concatenate((all_feat,part_feat))
     return all_feat
 
+HR_sub=[(60,200),(75,193),(74,195),(68,189),(58,196),(70,194),(60,194),(60,197),(66,188),(54,189)]
+
+def HR_norm(x,subject_n):
+    HR_res0,HR_max0=HR_sub[0]
+    HR_resn,HR_maxn=HR_sub[subject_n]
+    x_norm=(HR_res0*(HR_maxn-x)+HR_max0*(x-HR_resn))/(HR_maxn-HR_resn)
+    return x_norm
 
 IMUlabels=['temp']+[x+y for x in ['a16_','a6_','gyro_','B_'] for y in ['x','y','z']]+['orient_'+x for x in ['1','2','3','4']]
 col_labels=['time','activity_ID','heart_rate']+[x+y for x in ['hand_','chest_','ankle_'] for y in IMUlabels]
@@ -80,48 +87,51 @@ col_dict={col_sublabels[i]:i for i in range(len(col_sublabels))}
 
 def extract(subject_n):
 
-	#read data for subject 101 from file, coplied mostly from cylin
-	data=pd.read_csv('./PAMAP2_Dataset/Protocol/subject10'+str(subject_n)+'.dat',sep=' ',names=col_labels,header=None)
+    #read data for subject 101 from file, coplied mostly from cylin
+    data=pd.read_csv('./PAMAP2_Dataset/Protocol/subject10'+str(subject_n)+'.dat',sep=' ',names=col_labels,header=None)
 
-	#linear interpolate missing data
-	dataint=data.interpolate(method='linear')
+    #linear interpolate missing data
+    dataint=data.interpolate(method='linear')
 
-	#drop columns for orientation and a_6
-	data_sub=pd.DataFrame(dataint,columns=col_sublabels)
+    #drop columns for orientation and a_6
+    data_sub=pd.DataFrame(dataint,columns=col_sublabels)
 
-	#drop activity 0
-	data_nz=data_sub.loc[lambda x:x['activity_ID']!=0]
+    #drop activity 0
+    data_nz=data_sub.loc[lambda x:x['activity_ID']!=0]
 
-	#convert to numpy: I am not familiar with pandas enough...
-	data_ar=np.array(data_nz)
+    #convert to numpy: I am not familiar with pandas enough...
+    data_ar=np.array(data_nz)
 
-	#split data into maximal chunks of time, with same activity ids
-	x=np.arange(len(data_ar))
-	split_ind=np.argwhere(data_ar[x,1]!=data_ar[x-1,1])[:,0]
-	split_ind=np.append(split_ind,len(data_ar+1))
-	chunks=[data_ar[split_ind[i]:split_ind[i+1]] for i in range(len(split_ind)-1)]
+    #normalize heart rate
+    data_ar[:,2]=HR_norm(data_ar[:,2],subject_n)
 
-	#drop the first and last 10 seconds
-	chunks_chopped=[x[1000:-1000] for x in chunks]
+    #split data into maximal chunks of time, with same activity ids
+    x=np.arange(len(data_ar))
+    split_ind=np.argwhere(data_ar[x,1]!=data_ar[x-1,1])[:,0]
+    split_ind=np.append(split_ind,len(data_ar+1))
+    chunks=[data_ar[split_ind[i]:split_ind[i+1]] for i in range(len(split_ind)-1)]
 
-	ulist=[0.5,0.75,0.9,0.95]
+    #drop the first and last 10 seconds
+    chunks_chopped=[x[1000:-1000] for x in chunks]
 
-	#collect data into traindata and trainlabels
+    ulist=[0.5,0.75,0.9,0.95]
 
-	traindata=np.empty((0,98))
-	trainlabels=np.empty((0))
-	T=512
-	stride=100
-	for chunki in chunks_chopped:
-	    imax=(len(chunki)-T)//stride
-	    for i in range(imax):
-	        feat_rowi=feat_row(chunki[i*stride:i*stride+T],ulist)
-	        traindata=np.append(traindata,[feat_rowi],axis=0)
-	        trainlabels=np.append(trainlabels,chunki[0,1])
-	        
-	#very clumsy way to attach label column to data matrix. sorry
-	datalabels=np.hstack((traindata,np.reshape(trainlabels,(len(trainlabels),1))))
+    #collect data into traindata and trainlabels
 
-	np.save('data'+str(subject_n)+'.npy', (feat_names(ulist),datalabels))
+    traindata=np.empty((0,98))
+    trainlabels=np.empty((0))
+    T=512
+    stride=100
+    for chunki in chunks_chopped:
+        imax=(len(chunki)-T)//stride
+        for i in range(imax):
+            feat_rowi=feat_row(chunki[i*stride:i*stride+T],ulist)
+            traindata=np.append(traindata,[feat_rowi],axis=0)
+            trainlabels=np.append(trainlabels,chunki[0,1])
+            
+    #attach label column to data matrix.
+    datalabels=np.hstack((traindata,trainlabels[:, np.newaxis]))
 
-	return None
+    np.save('data'+str(subject_n)+'.npy', (feat_names(ulist),datalabels))
+
+    return None
