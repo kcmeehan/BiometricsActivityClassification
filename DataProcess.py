@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import FeatureCalculate
+import FeatureCalculate as FC
 
 def HR_norm(x,HR_rest,HR_max):
     """
@@ -98,10 +98,10 @@ class dataprocess():
         In this case 4 features (mean, median, std, peak) are calculated for all 33 columns, so there are 132 total features.
         Feature labels are imported from feat_labels attribute from a FeatureCalc object.
         """
-        FC=FeatureCalculate.FeatureCalc()
+        fc=FC.FeatureCalc()
         segment_df=pd.DataFrame(segment,columns=col_sublabels)
-        FC.load_new_ts(segment_df)
+        fc.load_new_ts(segment_df)
         if self.feat_labels==None:
-            self.feat_labels=FC.feat_labels
-        arr=FC.calculate_features()
+            self.feat_labels=fc.feat_labels
+        arr=fc.calculate_features()
         return arr
