@@ -61,7 +61,7 @@ class dataprocess():
         #normalize heart rate
         data_ar[:,2]=HR_norm(data_ar[:,2],self.HR_rest,self.HR_max)
 
-        #computes timestamp indices where the activity changes, including 0 and -1
+        #computes timestamp indices where the activity changes, including 0 and l
         l=len(data_ar)
         r=np.arange(l-1)+1
         split_ind=r[data_ar[r,1]!=data_ar[r-1,1]]
