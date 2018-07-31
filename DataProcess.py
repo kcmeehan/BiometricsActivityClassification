@@ -8,9 +8,12 @@ def HR_norm(x,HR_rest,HR_max):
     type HR_rest,HR_max: float --the resting and maximum heartrates of the subject, can be found in subjectInformation.pdf
     return type: float --normalized heart rate. Resting heart rate 
     """
-    HR_res0,HR_max0=60,200
+    HR_res0,HR_max0=HR_lim[0]
     x_norm=(HR_res0*(HR_max-x)+HR_max0*(x-HR_rest))/(HR_max-HR_rest)
     return x_norm
+
+#Heart rate limits for subjects. the 0th element is the standardized limit
+HR_lim=[(60,200),(75,193),(74,195),(68,189),(58,196),(70,194),(60,194),(60,197),(66,188),(54,189)]
 
 #labels of columns in raw data. 54 columns in total
 IMUlabels=[x+y for x in ['acc16g_','acc6g_','gyro_','mag_'] for y in ['x','y','z']]+['ori_'+x for x in ['0','1','2','3']]
@@ -31,6 +34,10 @@ activity_dict={0:'other',1:'lying',2:'sitting',3:'standing',4:'walking',5:'runni
 
 class dataprocess():
     def __init__(self,subj_filename,HR_rest,HR_max,T=512,stride=512):
+        """
+        type subject_filename: str --the filepath of .dat data file for one subject
+        type HR_rest,HR_max: float --the resting and maximum heartrates of the subject, can be found in subjectInformation.pdf
+        """
         self.subj_filename=subj_filename
         self.HR_rest=HR_rest
         self.HR_max=HR_max
@@ -42,8 +49,6 @@ class dataprocess():
         
     def preprocess(self):
         """
-        type subject_filename: str --the filepath of .dat data file for one subject
-        type HR_rest,HR_max: float --the resting and maximum heartrates of the subject, can be found in subjectInformation.pdf
         return type : List[arrays] --list of proprocessed continuous segments (each is several minutes long) of data, within which the
         subject performs only one activity, the arrays have 33 columns (including timestamp at column 0, activity_ID at column 1, and heartrate at column 2)
         """
@@ -52,7 +57,7 @@ class dataprocess():
         #linear interpolate missing data
         dataint=data.interpolate(method='linear')
 
-        #drop columns for orientation and a_6
+        #drop columns for orientation and acc6g
         data_sub=pd.DataFrame(dataint,columns=col_sublabels)
 
         #convert to array
@@ -95,7 +100,6 @@ class dataprocess():
         return type: array with shape (ncol)
 
         Performs feature_extraction using the FeatureCalc class from Robert.
-        In this case 4 features (mean, median, std, peak) are calculated for all 33 columns, so there are 132 total features.
         Feature labels are imported from feat_labels attribute from a FeatureCalc object.
         """
         fc=FC.FeatureCalc()
