@@ -38,7 +38,7 @@ class FeatureCalc:
         #self.ankle_mag = self.indf[['ankle_mag_x','ankle_mag_y','ankle_mag_z']]
 
         #feature names
-        self.feat_labels=[x+y for y in ['_mean','_median','_std','_peak'] for x in self.indf.columns[2:]]+['ActivityID']
+        self.feat_labels=[x+y for y in ['_mean','_median','_std','_peak'] for x in self.indf.columns[2:]]+['activityID']
 
     def calculate_features(self):
 
