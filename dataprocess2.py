@@ -77,6 +77,12 @@ class SpecChunk:
     
 class SegChunk:
     
+    # specChunk: should be a SpecChunk object
+    # duration: determines the length of the segment
+    # tError: determines how strict you want the linearity of the timestamp in a segment to be
+    # self.actDict[a]: will be a LIST of 2D or 1D np.array
+    # self.count: total number of segments
+    # self.featureName: newly added feature names after adding features (ex: by doing addSimpleFeature(...))
     def __init__(self, specChunk, duration=5.12, tError=0.05):
         self.parent = specChunk
         self.colName = specChunk.colName
@@ -117,9 +123,13 @@ class SegChunk:
         ax.set_zlabel('z');
     
 
+    
+    # Example:
     # colList = ['heart_rate', 'hand_temp', 'ankle_mag_x']
-    # fName = 'mean'---> will create ['heart_rate_mean', 'hand_temp_mean', 'ankle_mag_x_mean']
     # method = np.mean
+    # fName = 'mean'---> will add ['heart_rate_mean', 'hand_temp_mean', 'ankle_mag_x_mean'] to self.featureName
+    # This method will add an extra row to all segments, so the shape of segment will be (row+1, col)
+    # For those columns that are not specified will not go through this feature engineering, and its value will be None
     def addSimpleFeature(self, colList, fName, method):
         colIndex = [self.colName[i] in colList for i in range(len(self.colName))]
         rawFeatures = np.where(np.array([self.colName[i] in colList for i in range(len(self.colName))])==True)[0]
@@ -129,13 +139,28 @@ class SegChunk:
                 fList = []
                 for c in range(len(self.colName)):
                     if colIndex[c]:
-                        fList.append(method(self.actDict[a][i][:, c]))
+                        fList.append(method(self.actDict[a][i][:self.t, c]))
                     else:
                         fList.append(None)
                 self.actDict[a][i] = np.vstack((self.actDict[a][i], fList))
         
+    
+    # You can add features between columns. Ex: np.sum(hand_acc16g_x, hand_acc16g_y) 
+    def addPairwiseFeature(self, colList, fName, method):
+        rawFeatureIndex = np.where(np.array([self.colName[i] in colList for i in range(len(self.colName))])==True)[0]
         
-    ### Flatten all segment chunks in actDict
+        for a in self.actID:
+            for i in range(len(self.actDict[a])):
+                segment = self.actDict[a][i]
+                fColumn = [method(segment[r][rawFeatureIndex]) for r in range(self.t)]
+                for j in range(segment.shape[0]-self.t):
+                    fColumn.append(None)
+                self.actDict[a][i] = np.hstack((self.actDict[a][i], np.array(fColumn).reshape((segment.shape[0], 1))))
+        self.colName += [fName]
+        
+    
+    
+    ### Filter None and flatten all segment chunks in the actDict
     # self.actDict is still a dictionary, but the value w.r.t each key is a list of 1D np.array instead of 2D array
     def flatten(self):
         for a in self.actID:
