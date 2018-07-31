@@ -94,7 +94,7 @@ class dataprocess():
         type segment:array with shape (512,33)
         return type: array with shape (ncol)
 
-        Performs feature_extraction using the FeatureCalc class from Robert. nol is the expected number of features.
+        Performs feature_extraction using the FeatureCalc class from Robert.
         In this case 4 features (mean, median, std, peak) are calculated for all 33 columns, so there are 132 total features.
         Feature labels are imported from feat_labels attribute from a FeatureCalc object.
         """
