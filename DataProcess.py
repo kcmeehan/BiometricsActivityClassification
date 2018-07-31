@@ -13,8 +13,8 @@ def HR_norm(x,HR_rest,HR_max):
     return x_norm
 
 #labels of columns in raw data. 54 columns in total
-IMUlabels=['temp']+[x+y for x in ['acc16g_','acc6g_','gyro_','mag_'] for y in ['x','y','z']]+['ori_'+x for x in ['0','1','2','3']]
-col_labels=['timestamp','activityID','heart_rate']+[x+y for x in ['hand_','chest_','ankle_'] for y in IMUlabels]
+IMUlabels=[x+y for x in ['acc16g_','acc6g_','gyro_','mag_'] for y in ['x','y','z']]+['ori_'+x for x in ['0','1','2','3']]
+col_labels=['timestamp','activityID','heart_rate']+[x+y for x in ['hand_','chest_','ankle_'] for y in ['temp']+IMUlabels]
 
 #labels of columns in preprocessed data. 33 columns in total
 IMUsublabels=[x+y for x in ['acc16g_','gyro_','mag_'] for y in ['x','y','z']]

@@ -7,7 +7,7 @@ import pandas as pd
 
 class FeatureCalc:
 
-    def __init__(self,ncols=132):
+    def __init__(self):
 
         '''
 
@@ -18,7 +18,7 @@ class FeatureCalc:
 
         '''
 
-        self.ncols = ncols
+        #self.ncols = ncols
 
     def load_new_ts(self,input_df):
 
@@ -55,15 +55,11 @@ class FeatureCalc:
 
         features = [self.mean,self.median,self.std,self.peak]
 
-        arr = np.zeros(self.ncols)
+        arr = np.empty(0)
 
-        i = 0
         for featurefunc in features:
-
             values = featurefunc()
-            lv = len(values)
-            arr[i:i+lv] = values
-            i += lv
+            arr = np.concatenate((arr,values))
         return arr
 
     #########################
