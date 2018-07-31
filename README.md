@@ -1,3 +1,2 @@
 # BiometricsActivityClassification
 
-### Hello world
