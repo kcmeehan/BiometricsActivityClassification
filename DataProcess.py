@@ -34,25 +34,35 @@ activity_dict={0:'other',1:'lying',2:'sitting',3:'standing',4:'walking',5:'runni
               24:'rope jumping'}
 
 class dataprocess():
-    def __init__(self,subj_filename,HR_rest,HR_max,T=512,stride=512):
+    def __init__(self,subj_filename,T=512,stride=512,redact=1000):
         """
         type subject_filename: str --the filepath of .dat data file for one subject
-        type HR_rest,HR_max: float --the resting and maximum heartrates of the subject, can be found in subjectInformation.pdf
+        T -- number of samples on which to calculate features
+        stride -- gap between chunks of data onwhich features are calculated
+        redact -- number of samples to remove from the start and end of each activity 
+        
         """
         self.subj_filename=subj_filename
-        self.HR_rest=HR_rest
-        self.HR_max=HR_max
+        
+        #Get the resting and maximum heartrates for that subject
+        subject_index = int(self.subj_filename.split('/')[-1].split('.')[0][-1])
+        self.HR_rest = HR_lim[subject_index][0]
+        self.HR_max = HR_lim[subject_index][1]
+        
         self.feat_labels=None
-        self.chunks=self.preprocess()
+        self.chunks=self.preprocess(redact)
+        self.fc = FC.FeatureCalc()
         self.data_segmented=self.segmentation(self.chunks,T,stride)
         self.df=pd.DataFrame(self.data_segmented,columns=self.feat_labels)
-        return None
         
-    def preprocess(self):
+        
+    def preprocess(self,redact):
         """
         return type : List[arrays] --list of proprocessed continuous segments (each is several minutes long) of data, within which the
         subject performs only one activity, the arrays have 33 columns (including timestamp at column 0, activity_ID at column 1, and heartrate at column 2)
         """
+        
+        #generate dataframe from the raw data
         data=pd.read_csv(self.subj_filename,sep=' ',names=col_labels,header=None)
 
         #linear interpolate missing data
@@ -75,9 +85,11 @@ class dataprocess():
 
         #chop data into chunks of continuous time blocks with the same activity, also remove activity zero
         chunks=[data_ar[split_ind[i]:split_ind[i+1]] for i in range(len(split_ind)-1) if data_ar[split_ind[i],1]!=0]
-
-        #drop the first and last 10 seconds
-        chunks=[x[1000:-1000] for x in chunks]
+        
+        #drop the first and last n samples. Only keep redacted samples that 
+        #are of sufficient length
+        
+        chunks=[x[redact:-(redact+1)] for x in chunks if len(x) > (2*redact)]
 
         return chunks
         
@@ -103,10 +115,10 @@ class dataprocess():
         Performs feature_extraction using the FeatureCalc class from Robert.
         Feature labels are imported from feat_labels attribute from a FeatureCalc object.
         """
-        fc=FC.FeatureCalc()
+        
         segment_df=pd.DataFrame(segment,columns=col_sublabels)
-        fc.load_new_ts(segment_df)
+        self.fc.load_new_ts(segment_df)
         if self.feat_labels==None:
-            self.feat_labels=fc.feat_labels
-        arr=fc.calculate_features()
+            self.feat_labels=self.fc.feat_labels
+        arr=self.fc.calculate_features()
         return arr
