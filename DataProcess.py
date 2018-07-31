@@ -4,6 +4,7 @@ import FeatureCalculate as FC
 
 def HR_norm(x,HR_rest,HR_max):
     """
+    Normalize the heart rates of subject such that the normalized resting/maximum heart rate is HR_res0/HR_max0
     type x: float --input heart rate
     type HR_rest,HR_max: float --the resting and maximum heartrates of the subject, can be found in subjectInformation.pdf
     return type: float --normalized heart rate. Resting heart rate 
@@ -12,7 +13,7 @@ def HR_norm(x,HR_rest,HR_max):
     x_norm=(HR_res0*(HR_max-x)+HR_max0*(x-HR_rest))/(HR_max-HR_rest)
     return x_norm
 
-#Heart rate limits for subjects. the 0th element is the standardized limit
+#Heart rate limits for subject copied from subjectInformation.pdf. the 0th element is the standardized limit
 HR_lim=[(60,200),(75,193),(74,195),(68,189),(58,196),(70,194),(60,194),(60,197),(66,188),(54,189)]
 
 #labels of columns in raw data. 54 columns in total

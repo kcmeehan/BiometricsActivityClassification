@@ -18,8 +18,6 @@ class FeatureCalc:
 
         '''
 
-        #self.ncols = ncols
-
     def load_new_ts(self,input_df):
 
         '''
@@ -40,7 +38,7 @@ class FeatureCalc:
         #self.ankle_mag = self.indf[['ankle_mag_x','ankle_mag_y','ankle_mag_z']]
 
         #feature names
-        self.feat_labels=[x+y for y in ['_mean','_median','_std','_peak'] for x in self.indf.columns]
+        self.feat_labels=[x+y for y in ['_mean','_median','_std','_peak'] for x in self.indf.columns[2:]]+['ActivityID']
 
     def calculate_features(self):
 
@@ -60,6 +58,9 @@ class FeatureCalc:
         for featurefunc in features:
             values = featurefunc()
             arr = np.concatenate((arr,values))
+            
+        arr=np.append(arr,self.indf.activityID[0])
+        
         return arr
 
     #########################
@@ -72,7 +73,7 @@ class FeatureCalc:
         Return mean of all the columns in the df
         '''
 
-        return self.indf.mean(skipna=False).values
+        return self.indf.mean(skipna=False).values[2:]
 
     def median(self):
         
@@ -80,7 +81,7 @@ class FeatureCalc:
         Return median of all the columns in the df
         '''
 
-        return self.indf.median(skipna=False).values
+        return self.indf.median(skipna=False).values[2:]
 
     def std(self):
         
@@ -88,7 +89,7 @@ class FeatureCalc:
         Return std of all the columns in the df
         '''
 
-        return self.indf.std(skipna=False).values
+        return self.indf.std(skipna=False).values[2:]
 
     def peak(self):
         
@@ -96,7 +97,7 @@ class FeatureCalc:
         Return peak of all the columns in the df
         '''
 
-        return self.indf.abs().max().values
+        return self.indf.abs().max().values[2:]
     
     def kurtotis(self):
         
@@ -104,5 +105,5 @@ class FeatureCalc:
         Return kurtosis of all the columns in the df
         '''
         
-        return self.indf.kurt(skipna=False).values
+        return self.indf.kurt(skipna=False).values[2:]
 
