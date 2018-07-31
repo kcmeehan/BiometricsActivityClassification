@@ -38,14 +38,6 @@ class SpecChunk:
             print('Removing heads and tails...')
             self.throwAllHeadAndTail()
             
-    
-    
-    def head(self, rowNum=5):
-        self.df.head(rowNum)
-        
-        
-    def tail(self, rowNum=5):
-        self.df.head(rowNum)
         
         
     def removeUseless(self):
