@@ -83,7 +83,7 @@ class SegChunk:
         self.featureName = []
         self.t = int(duration*100)
         self.actID = specChunk.actID
-        self.segDict = {}
+        self.actDict = {}
         self.count = 0
         
         t = int(duration*100)
@@ -96,14 +96,14 @@ class SegChunk:
                 if ((i+1)*t < N) and (delt<(duration+tError)) and (delt>(duration-tError)):
                     db.append(np.array(specChunk.actDict[a].loc[i*t:(i+1)*t-1, :]))
             
-            self.segDict[a] = db
-            self.count += len(self.segDict[a])
-            print('actID={},\t count={}'.format(a, len(self.segDict[a])))
+            self.actDict[a] = db
+            self.count += len(self.actDict[a])
+            print('actID={},\t count={}'.format(a, len(self.actDict[a])))
         print('Total counts=', self.count)
     
     
     def showContour(self, act, index):
-        segment = self.segDict[act][index][:, 2:]
+        segment = self.actDict[act][index][:, 2:]
         nt, nf = segment.shape
         X, Y = np.meshgrid(np.linspace(0, nt-1, nt), np.linspace(0, nf-1, nf))
         Z = segment.transpose()
@@ -125,22 +125,22 @@ class SegChunk:
         rawFeatures = np.where(np.array([self.colName[i] in colList for i in range(len(self.colName))])==True)[0]
         self.featureName += [self.colName[rawFeatures[i]]+'_'+fName for i in range(len(rawFeatures))]
         for a in self.actID:
-            for i in range(len(self.segDict[a])):
+            for i in range(len(self.actDict[a])):
                 fList = []
                 for c in range(len(self.colName)):
                     if colIndex[c]:
-                        fList.append(method(self.segDict[a][i][:, c]))
+                        fList.append(method(self.actDict[a][i][:, c]))
                     else:
                         fList.append(None)
-                self.segDict[a][i] = np.vstack((self.segDict[a][i], fList))
+                self.actDict[a][i] = np.vstack((self.actDict[a][i], fList))
         
         
-    ### Flatten all segment chunks in segDict
-    # self.segDict is still a dictionary, but the value w.r.t each key is a list of 1D np.array instead of 2D array
+    ### Flatten all segment chunks in actDict
+    # self.actDict is still a dictionary, but the value w.r.t each key is a list of 1D np.array instead of 2D array
     def flatten(self):
         for a in self.actID:
-            n = len(self.segDict[a])
-            self.segDict[a] = [np.array(list(filter(None, self.segDict[a][i].flatten('F')))) for i in range(n)]
+            n = len(self.actDict[a])
+            self.actDict[a] = [np.array(list(filter(None, self.actDict[a][i].flatten('F')))) for i in range(n)]
         
    
     
