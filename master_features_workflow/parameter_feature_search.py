@@ -162,9 +162,9 @@ def LOSO(full_df,classifier,hold_out_fraction=0.3):
         Y_train = X_train['activityID'].copy()
         X_train.drop(['activityID','subjectID'],inplace=True,axis=1)
         
-        RF.fit(X_train,Y_train)
+        classifier.fit(X_train,Y_train)
         
-        score = RF.score(X_test,Y_test)
+        score = classifier.score(X_test,Y_test)
         subject_scores[str(subjectID)] = score 
         
     return subject_scores
