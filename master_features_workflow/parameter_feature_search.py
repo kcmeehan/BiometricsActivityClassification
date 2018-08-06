@@ -106,7 +106,7 @@ def Run_GA(X,Y,classifier):
 	GeneticAlgorithm object 
 	'''
 
-	GA = GeneticAlgorithm(X,Y,classifier,Niter=10,njobs=4)
+	GA = GeneticAlgorithm(X,Y,classifier,Niter=100 ,njobs=4)
 	GA.fit()
 
 	return GA
