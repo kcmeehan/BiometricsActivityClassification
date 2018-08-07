@@ -30,21 +30,14 @@ def test_model_initial(model,X,Y,test_parameters,hold_out_fraction=0.3):
     Output:
     X_new: dataframe of the optimal features
     best_classifier: the model with the best hyperparameters
+    
     '''
     
     #Split into training and hold-out sets. We are going to do our search for optimal 
     #hyperparameters on the training set and preserve the holdout set for testing 
     #later
-    
-    #Label encoder
-    le = LabelEncoder()
-    labels = le.fit_transform(Y)
-    
-    #Scaler
-    Scaler = StandardScaler()
-    X_scaled = Scaler.fit_transform(X)
-    
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled,labels,test_size=hold_out_fraction)
+
+    X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=hold_out_fraction)
     
     #Random forest classifier
     CF = model
@@ -90,6 +83,66 @@ def test_model_initial(model,X,Y,test_parameters,hold_out_fraction=0.3):
     X_new = pd.DataFrame(X_new,columns=X_new_cols)
     
     return X_new, best_classifier
+
+def test_model_initial_noselection(model,X,Y,test_parameters,hold_out_fraction=0.3):
+    
+    '''
+    Explore parameter space and report the best model and feature selection
+    
+    Input:
+    model is an sklearn classifier object
+    X is the input feature dataframe
+    Y is the target vector
+    test_parameters is a dictionary to be fed into GridSearchCV
+    hold_out_fraction is the fraction of the dataset to use as a test once the hyperparameters have 
+    been tuned
+
+    Output:
+    best_classifier: the model with the best hyperparameters
+    
+    '''
+    
+    #Split into training and hold-out sets. We are going to do our search for optimal 
+    #hyperparameters on the training set and preserve the holdout set for testing 
+    #later
+
+    X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=hold_out_fraction)
+    
+    #Random forest classifier
+    CF = model
+    
+    #Pipeline
+    CF_pipeline = Pipeline([('classify', CF)])
+    
+    #Search parameter space
+    grid_search = GridSearchCV(CF_pipeline, test_parameters, verbose=1, cv=5, n_jobs=4)
+    
+    print("Performing grid search...")
+    print("pipeline:", [name for name, _ in CF_pipeline.steps])
+    print("parameters:")
+    print(test_parameters)
+    t0 = time.time()
+    grid_search.fit(X_train, y_train)
+    print("done in %0.3fs" % (time.time() - t0))
+    print()
+
+    print("Best score: %0.3f" % grid_search.best_score_)
+    print("Best parameters set:")
+    best_parameters = grid_search.best_estimator_.get_params()
+    for param_name in sorted(test_parameters.keys()):
+        print("\t%s: %r" % (param_name, best_parameters[param_name]))
+        
+    #Test on the hold_out set
+    p = grid_search.best_estimator_
+    best_classifier = p.named_steps['classify']
+    
+    #Determine score on hold-out dataset using the selected parameters
+    hold_out_score = best_classifier.score(X_test,y_test)
+    
+    print("Hold out score: %0.3f" %hold_out_score)
+    
+    return best_classifier
+
 
 
 def Run_GA(X,Y,classifier):
