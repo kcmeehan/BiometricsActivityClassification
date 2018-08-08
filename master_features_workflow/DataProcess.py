@@ -66,25 +66,25 @@ class dataprocess():
         data=pd.read_csv(self.subj_filename,sep=' ',names=col_labels,header=None)
 
         #linear interpolate missing data
-        dataint=data.interpolate(method='linear')
+        data=data.interpolate(method='linear')
 
         #drop columns for orientation and acc6g
-        data_sub=pd.DataFrame(dataint,columns=col_sublabels)
+        data=pd.DataFrame(data,columns=col_sublabels)
 
         #convert to array
-        data_ar=np.array(data_sub)
+        data=np.array(data)
 
         #normalize heart rate
-        data_ar[:,2]=HR_norm(data_ar[:,2],self.HR_rest,self.HR_max)
+        data[:,2]=HR_norm(data[:,2],self.HR_rest,self.HR_max)
 
         #computes timestamp indices where the activity changes, including 0 and l
-        l=len(data_ar)
+        l=len(data)
         r=np.arange(l-1)+1
-        split_ind=r[data_ar[r,1]!=data_ar[r-1,1]]
+        split_ind=r[data[r,1]!=data[r-1,1]]
         split_ind=np.concatenate(([0],split_ind,[l]))
 
         #chop data into chunks of continuous time blocks with the same activity, also remove activity zero
-        chunks=[data_ar[split_ind[i]:split_ind[i+1]] for i in range(len(split_ind)-1) if data_ar[split_ind[i],1]!=0]
+        chunks=[data[split_ind[i]:split_ind[i+1]] for i in range(len(split_ind)-1) if data[split_ind[i],1]!=0]
         
         #drop the first and last n samples. Only keep redacted samples that 
         #are of sufficient length

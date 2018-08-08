@@ -11,11 +11,11 @@ import time
 
 def main():
 
-	feature_df = pd.read_csv('Features_test.dat')
+	feature_df = pd.read_csv('Features_df_with_subject.dat')
 
-	Y = pd.get_dummies(feature_df['activityID'],drop_first=True)
+	Y = feature_df['activityID']
 
-	X = feature_df.drop(['activityID'],axis=1)
+	X = feature_df.drop(['subjectID','activityID'],axis=1)
 
 	RF = RandomForestClassifier(n_estimators=1,min_samples_split=2,min_samples_leaf=1)
 
@@ -23,14 +23,6 @@ def main():
 	GA = GeneticAlgorithm(X,Y,RF,njobs=4)
 	GA.fit()
 	ed1 = time.time()
-
-	st2 = time.time()
-	GA = GeneticAlgorithm(X,Y,RF,njobs=1)
-	GA.fit()
-	ed2 = time.time()
-
-	print(ed1-st1)
-	print(ed2-st2)
 
 
 	#print(GA.best_fitness)

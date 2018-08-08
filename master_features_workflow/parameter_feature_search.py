@@ -8,6 +8,7 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.pipeline import Pipeline
 from GeneticAlgorithm import GeneticAlgorithm
+from sklearn.metrics import classification_report
 import time
 import pandas as pd
 
@@ -138,8 +139,12 @@ def test_model_initial_noselection(model,X,Y,test_parameters,hold_out_fraction=0
     
     #Determine score on hold-out dataset using the selected parameters
     hold_out_score = best_classifier.score(X_test,y_test)
+    hold_out_prediction = best_classifier.predict(X_test)
     
     print("Hold out score: %0.3f" %hold_out_score)
+    
+    #Do classification report on the hold_out dataset
+    print(classification_report(y_test,hold_out_prediction))
     
     return best_classifier
 
@@ -218,6 +223,14 @@ def LOSO(full_df,classifier,hold_out_fraction=0.3):
         classifier.fit(X_train,Y_train)
         
         score = classifier.score(X_test,Y_test)
+        
+        #Do classification report on the hold_out dataset
+        LOSO_prediction = classifier.predict(X_test)
+        
+        print('----------------------------------------------------')
+        print(classification_report(Y_test,LOSO_prediction))
+        print('----------------------------------------------------')
+        
         subject_scores[str(subjectID)] = score 
         
     return subject_scores

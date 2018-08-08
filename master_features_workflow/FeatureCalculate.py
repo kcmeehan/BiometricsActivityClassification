@@ -159,7 +159,7 @@ class FeatureCalc:
         Return interquartile range of all the columns in the df
         '''
         
-        return self.indf.apply(lambda x: stats.iqr(x))[:2]
+        return self.indf.apply(lambda x: stats.iqr(x)).values[2:]
     
     
     #### 
