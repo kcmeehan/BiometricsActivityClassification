@@ -1,0 +1,62 @@
+Things to do:
+
+- Download the activity database http://archive.ics.uci.edu/ml/datasets/pamap2+physical+activity+monitoring
+- Take a look at the data. Try making plots etc. 
+- Think about what features we might want to extract.
+- Read up about feature engineering
+
+Questions:
+
+- What sort of data is being recorded? Are there missing data?
+- Is the data labelled?
+- What is the size of the database? Can it all be loaded into memory? Might need to put everything into a single 
+database before we even start. 
+
+#####################################
+
+Points from 1st meeting (07/25/2018)
+
+- Remove 10 seconds of data from the beginning and end of each activity (or maybe it doesn't have to be be 10 seconds)
+- Be sure to exclude activity 0 from any analysis
+- Make a lookup table for the activities
+- Note the heart rate normalization: Need to determine the resting and maximum heartrate of each subject in order to do this. The maximum heartrate is determined by the age of the subject. MHR = 220 - age.
+
+### 
+
+Action points from Reiss (2012) paper
+Find out what LOSO 9-fold cross validatition is vs. regular cross validation
+Look into their preformance measures 
+Read Reiss (2011)a,b 
+
+### 
+
+Need to think about the classification problem that we're actually going to do - individial classification or some sort of 
+grouping of the features in classification 
+
+Feature ideas:
+- Correlation between axes 
+- Correlation between different accelerometers
+- Peak frequency of PSD 
+- Spectral entropy of normalized PSD 
+- Synchronized data from all three sensors in weighted sum, pairwise and in total 
+- Mean, standard deviation, integral and energy 
+
+###
+
+Features that were previously used (Reiss 2011(a,b) & 2012)
+
+Time domain:
+- mean, median, standard deviation, peak acceleration, absolute integral 
+
+Frequency domain: 
+- Peak frequency in the PSD, power ratio in the bands 0-2.5Hz and 0-5Hz, energy of the frequency band 0-10Hz, energy of the normalized PSD in the band 0-10Hz
+- Correlation between channels 
+- Weighted sum across three channels
+
+###
+
+TO DO:
+
+-> Write code to calculate features! Maybe get inspiration from the tsfresh package here. Once the features are calulated they need to populate a new 'feature' dataframe, which can then be fed to the classifier
+-> Look into what features we might want to use - maybe do some more exploratory plotting to see what features change dramatically between activities
+-> Think about which classifiers we want to use. 
