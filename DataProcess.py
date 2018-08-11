@@ -24,14 +24,14 @@ col_labels=['timestamp','activityID','heart_rate']+[x+y for x in ['hand_','chest
 IMUsublabels=[x+y for x in ['acc16g_','gyro_','mag_'] for y in ['x','y','z']]
 col_sublabels=['timestamp','activityID','heart_rate']+[x+y for x in ['hand_','chest_','ankle_'] for y in ['temp']+IMUsublabels]
 
-#Converting column name to preprocessed column index. eg. col_dict['heart_rate'] returns 2
-col_dict={col_sublabels[i]:i for i in range(len(col_sublabels))}
-
 #Converting activity id to activity name
 activity_dict={0:'other',1:'lying',2:'sitting',3:'standing',4:'walking',5:'running',6:'cycling',7:'nordic walking',
               9:'watching TV',10:'computer work',11:'car driving',12:'ascending stairs',13:'descending stairs',
               16:'vacuum cleaning',17:'ironing',18:'folding laundry',19:'house cleaning',20:'playing_soccer',
               24:'rope jumping'}
+
+protocol_list=[1,2,3,4,5,6,7,8,9]
+optional_list=[1,5,6,8,9]
 
 class dataprocess():
     def __init__(self,subj_filename,T=512,stride=512,redact=1000):

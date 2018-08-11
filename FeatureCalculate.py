@@ -19,7 +19,6 @@ class FeatureCalc:
         to preallocate a numpy array that gets filled with the feature values.
 
         '''
-
     def load_new_ts(self,input_df):
 
         '''
@@ -37,7 +36,7 @@ class FeatureCalc:
         self.ankle_gyro = self.indf[['ankle_gyro_x','ankle_gyro_y','ankle_gyro_z']]
 
         #feature names
-        self.feat_labels=[x+y for y in ['_mean','_median','_std','_peak','_kurtosis'] for x in self.indf.columns[2:]]+['hand_acc_vsum_welch','hand_acc_vsum_sp_entropy','hand_acc_spectrum_energy','hand_acc_power_ratio']+['hand_acc_XcY','hand_acc_XcZ','hand_acc_YcZ']+['chest_acc_vsum_welch','chest_acc_vsum_sp_entropy','chest_acc_spectrum_energy','chest_acc_power_ratio']+['chest_acc_XcY','chest_acc_XcZ','chest_acc_YcZ']+['ankle_acc_vsum_welch','ankle_acc_vsum_sp_entropy','ankle_acc_spectrum_energy','ankle_acc_power_ratio']+['ankle_acc_XcY','ankle_acc_XcZ','ankle_acc_YcZ']+['hand_gyro_vsum_welch','hand_gyro_vsum_sp_entropy','hand_gyro_spectrum_energy','hand_gyro_power_ratio']+['hand_gyro_XcY','hand_gyro_XcZ','hand_gyro_YcZ']+['chest_gyro_vsum_welch','chest_gyro_vsum_sp_entropy','chest_gyro_spectrum_energy','chest_gyro_power_ratio']+['chest_gyro_XcY','chest_gyro_XcZ','chest_gyro_YcZ']+['ankle_gyro_vsum_welch','ankle_gyro_vsum_sp_entropy','ankle_gyro_spectrum_energy','ankle_gyro_power_ratio']+['ankle_gyro_XcY','ankle_gyro_XcZ','ankle_gyro_YcZ']+['activityID']
+        self.feat_labels=[x+y for y in ['_mean','_median','_std','_peak','_kurtosis'] for x in self.indf.columns[2:]]+[x+y+z for y in ['_acc','_gyro'] for x in ['hand','chest','ankle'] for z in ['_vsum_welch','_vsum_sp_entropy','_spectrum_energy','_power_ratio','_XcY','_XcZ','_YcZ']]+['activityID']
 
         
     def calculate_features(self):
